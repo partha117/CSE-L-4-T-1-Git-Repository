@@ -1,0 +1,112 @@
+public  static  Schedule firstChoiceSuccessorGenerator(Schedule parent)
+    {
+        int target=parent.getClashCount();
+        int val=Integer.MAX_VALUE;
+        Schedule temp=null;
+        for(;target<=val;)
+        {
+            temp=randomScheduleGenerator(parent);
+            val=temp.getClashCount();
+        }
+        return temp;
+    }
+	
+	
+private static boolean checkALlLocalMinima(ArrayList<Schedule> best_k) {
+        int target=20;
+        if(target>best_k.size())
+        {
+            target=best_k.size();
+        }
+
+        for(int i=1;i<target;i++)
+        {
+            if(best_k.get(i-1).getClashCount()!=best_k.get(i).getClashCount())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    public static Schedule randomScheduleGenerator(Schedule parent)
+    {
+        ArrayList<Slot>[][] matrix=parent.getRoutine().copy();
+        Random random=new Random();
+        int period,day,cl=0,i=0,j=0;
+        int direction=random.nextInt(3)+1;
+        period=random.nextInt(numberOfPeriod);
+        day=random.nextInt(numberOfDay);
+        i=day;
+        j=period;
+        if(direction==UP)
+        {
+            i=day-1;
+        }
+        else if(direction==DOWN)
+        {
+            i=day+1;
+        }
+        else if(direction==LEFT)
+        {
+            j=period-1;
+        }
+        else if(direction==RIGHT)
+        {
+            j=period+1;
+        }
+
+
+        for(;matrix[day][period].size()==0;)
+        {
+            period=random.nextInt(numberOfPeriod);
+            day=random.nextInt(numberOfDay);
+        }
+        for(;!inBoundary(numberOfDay,numberOfPeriod,i,j);)
+        {
+            direction=random.nextInt(3)+1;
+            i=day;
+            j=period;
+            if(direction==UP)
+            {
+                i=day-1;
+            }
+            else if(direction==DOWN)
+            {
+                i=day+1;
+
+            }
+            else if(direction==LEFT)
+            {
+
+                j=period-1;
+            }
+            else if(direction==RIGHT)
+            {
+                j=period+1;
+            }
+        }
+        try {
+            cl = random.nextInt(matrix[day][period].size() - 1);
+        }catch (Exception e)
+        {
+            System.out.println("Size: "+matrix[day][period].size());
+        }
+        if(cl<0)
+        {
+            System.out.println("cl neg");
+        }
+
+        Slot temp=matrix[day][period].remove(cl);
+        Schedule retVal=null;
+        try {
+            retVal = copyPaste(parent, direction, day, period, cl);
+        }catch (Exception e)
+        {
+            System.out.println(" day:"+day+" period:"+period+" cl:"+cl+" size:"+matrix[day][period].size()+" dir:"+direction+" i:"+i+" j:"+j);
+        }
+        retVal.updateClash();
+        return retVal;
+
+    }
